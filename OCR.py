@@ -1,82 +1,51 @@
 import cv2
-import pytesseract
 import numpy as np
+import pytesseract
 
-# Path to Tesseract executable if not added to PATH
-# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
-# Function to preprocess the captured Sudoku image
 def preprocess_image(image_path):
     # Load the image
     image = cv2.imread(image_path)
-    
-    # Convert to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     
-    # Apply Gaussian blur to reduce noise
+    # Apply Gaussian Blur
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     
-    # Apply adaptive thresholding to get binary image
-    binary = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-                                   cv2.THRESH_BINARY_INV, 11, 2)
+    # Adaptive Thresholding
+    thresh = cv2.adaptiveThreshold(
+        blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv2.THRESH_BINARY, 11, 2)
     
-    return binary
+    # Invert colors: digits become black on white background
+    inverted = cv2.bitwise_not(thresh)
+    
+    return inverted
 
-# Function to extract the digits from the Sudoku grid using OCR
-def extract_digits_from_image(processed_image):
-    # Find contours of all the cells
-    contours, _ = cv2.findContours(processed_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+def extract_digits(processed_image):
+    # Configure Tesseract to recognize digits only
+    config = "--psm 10 --oem 3 -c tessedit_char_whitelist=123456789"
     
-    # Initialize the Sudoku grid to store recognized digits
-    sudoku_grid = [[0 for _ in range(9)] for _ in range(9)]
+    # Use pytesseract to do OCR on the processed image
+    custom_config = r'--oem 3 --psm 6 outputbase digits'
+    data = pytesseract.image_to_string(processed_image, config=custom_config)
     
-    # Loop over each contour to identify potential cells
-    for contour in contours:
-        # Approximate the contour shape
-        approx = cv2.approxPolyDP(contour, 0.02 * cv2.arcLength(contour, True), True)
-        
-        # Ignore if not rectangular
-        if len(approx) != 4:
-            continue
-        
-        # Get bounding rectangle for the contour
-        x, y, w, h = cv2.boundingRect(contour)
-        
-        # Filter by size to remove noise
-        if w < 20 or h < 20:
-            continue
-        
-        # Crop the detected cell from the original grayscale image
-        cell = processed_image[y:y+h, x:x+w]
-        
-        # Resize cell to a fixed size for OCR
-        cell_resized = cv2.resize(cell, (28, 28))
-        
-        # Perform OCR to recognize the digit in the cell
-        digit = pytesseract.image_to_string(cell_resized, config='--psm 10 digits')
-        
-        # Check if the recognized character is a digit
-        if digit.isdigit():
-            # Convert string digit to integer
-            recognized_digit = int(digit)
-            
-            # Determine row and column (simplified for now, additional logic needed for precise positioning)
-            row, col = y // 100, x // 100  # This assumes a roughly 900x900 image size
-            sudoku_grid[row][col] = recognized_digit
+    # Process the OCR data to extract digits
+    digits = [int(char) for char in data if char.isdigit()]
     
-    return sudoku_grid
+    # Assuming a 9x9 Sudoku puzzle
+    if len(digits) != 81:
+        print("Warning: Detected digits count does not equal 81. Check the image quality.")
+    
+    # Convert to 9x9 grid
+    grid = []
+    for i in range(9):
+        row = digits[i*9:(i+1)*9]
+        grid.append(row)
+    
+    return grid
 
-# Example usage
 if __name__ == "__main__":
-    # Define the image path (use the output path from the previous module)
-    image_path = '/home/pi/sudoku_capture.jpg'
-    
-    # Preprocess the image
-    processed_image = preprocess_image(image_path)
-    
-    # Extract Sudoku grid using OCR
-    sudoku_grid = extract_digits_from_image(processed_image)
-    
-    # Print the extracted Sudoku grid
-    for row in sudoku_grid:
+    processed = preprocess_image('sudoku_puzzle.jpg')
+    grid = extract_digits(processed)
+    print("Extracted Sudoku Grid:")
+    for row in grid:
         print(row)
