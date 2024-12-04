@@ -95,8 +95,8 @@ class PiTft:
     def __del__(self):
         """Cleaning up Touchscreen events and Threads when the Object destroyed."""
         self.pitft.stop()
-        if self.use_gpio:
-            GPIO.cleanup()
+        #if self.use_gpio:
+        #    GPIO.cleanup()
     def Button1Interrupt(self,callback=None,bouncetime=200):
         """Calls callback if Button1 pressed."""
         if self.__b1: 
