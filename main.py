@@ -24,7 +24,7 @@ for button in BUTTONS.values():
 
 # Set environment variables for PiTFT
 os.putenv('SDL_VIDEODRV', 'fbcon')
-os.putenv('SDL_FBDEV', '/dev/fb1')
+os.putenv('SDL_FBDEV', '/dev/fb0')
 os.putenv('SDL_MOUSEDRV', 'dummy')
 os.putenv('SDL_MOUSEDEV', '/dev/null')
 os.putenv('DISPLAY', '')
@@ -136,6 +136,7 @@ def main():
                             solution = get_solution(puzzle)
                             if solution is not None:
                                 print("Puzzle solved successfully.")
+                                print(solution)
                                 # Launch the interactive GUI
                                 run_gui(puzzle, solution)
                                 # After returning from GUI, redraw the main menu
