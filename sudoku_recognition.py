@@ -165,7 +165,8 @@ class SudokuRecognition(object):
 
         digit = digit[None, None, :, :]
 
-        SudokuRecognition.model.load_state_dict(torch.load('./best_model'))
+        SudokuRecognition.model.load_state_dict(torch.load('./model', map_location='cpu'))
+
         SudokuRecognition.model.eval()
         pred = SudokuRecognition.model(digit)
 
@@ -203,14 +204,14 @@ class SudokuRecognition(object):
                 for alpha in [0, 0.5, 1.0, 1.3, 1.5, 1.7, 2.0]:
                     try:
                         im_copy = np.copy(im)
-                        im_copy = cv2.convertScaleAbs(im_copy, alpha)
-
+                        im_copy = cv2.convertScaleAbs(im_copy, alpha=alpha)
                         sudoku = SudokuRecognition.recognize_helper(im_copy, v_iterations, h_iterations)
-
+                        print(sudoku)
                         return sudoku
                     except:
                         continue
         
         return sudoku
-im = cv2.imread('Sudoku-Game/sudoku_puzzle1.jpg')
-SudokuRecognition.recognize(im)
+# im = cv2.imread('sudoku_puzzle.jpg')
+# print("Image is None?", im is None)
+# SudokuRecognition.recognize(im)
