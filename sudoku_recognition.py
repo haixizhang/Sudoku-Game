@@ -1,3 +1,5 @@
+# sudoku_recognition.py
+
 import torch
 from model import CNN
 import numpy as np
@@ -213,5 +215,5 @@ class SudokuRecognition(object):
         
         return sudoku
 # im = cv2.imread('sudoku_puzzle.jpg')
-# print("Image is None?", im is None)
+# # print("Image is None?", im is None)
 # SudokuRecognition.recognize(im)

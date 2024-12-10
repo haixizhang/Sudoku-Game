@@ -1,4 +1,4 @@
-# Gui.py
+# Gui.py 
 import pygame
 import pigame  # Ensure pigame.py is in the same directory
 from pygame.locals import *
@@ -160,16 +160,17 @@ def run_gui(puzzle, answer, TIMEOUT=120):
     mode = "SELF_SOLVE"  # Default to Self Solve Mode
     
     try:
-        running = True
-        while running:
+        running_gui = True  # Separate flag for GUI loop
+        while running_gui:
             # Update touch events
             pitft.update()
 
             # Check the physical buttons
             if BUTTONS["BAILOUT"] is not None and GPIO.input(BUTTONS["BAILOUT"]) == GPIO.LOW:
-                print("Quit button pressed")
+                print("Quit button pressed in GUI")
                 time.sleep(0.2)  # Debounce delay
-                running = False  # Exit the GUI loop
+                running_gui = False  # Exit the GUI loop
+                break  # Return control to main.py
 
             if BUTTONS["REVEAL"] is not None and GPIO.input(BUTTONS["REVEAL"]) == GPIO.LOW:
                 print("Reveal answers button pressed")
@@ -212,8 +213,9 @@ def run_gui(puzzle, answer, TIMEOUT=120):
 
             # Implement timeout functionality
             if time.time() - start_time > TIMEOUT:
-                print("Program timed out")
-                running = False
+                print("GUI timed out")
+                running_gui = False  # Exit the GUI loop
+                break
 
             # Handle touch events
             for event in pygame.event.get():
