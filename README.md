@@ -60,7 +60,7 @@ The system architecture consists of the following components:
 ### Prerequisites
 
 - **Raspberry Pi 4 Model B** with Raspberry Pi OS installed.
-- **Pi Camera V2**.
+- **Raspberry Pi Camera 3**.
 - **Adafruit PiTFT Plus 320x240 2.8" TFT + Capacitive Touchscreen**.
 - **Python 3.7+** installed on Raspberry Pi.
 
