@@ -23,37 +23,25 @@ class SudokuRecognition(object):
 
     @staticmethod
     def sort_contours(cnts, method="left-to-right"):
-    	# initialize the reverse flag and sort index
         reverse=False
         i = 0
-    	# handle if we need to sort in reverse
         if method == "right-to-left" or method == "bottom-to-top":
             reverse = True
-    	# handle if we are sorting against the y-coordinate rather than
-    	# the x-coordinate of the bounding box
         if method == "top-to-bottom" or method == "bottom-to-top":
             i = 1
-    	# construct the list of bounding boxes and sort them from top to
-    	# bottom
         boundingBoxes = [cv2.boundingRect(c) for c in cnts]
         (cnts, boundingBoxes) = zip(*sorted(zip(cnts, boundingBoxes),
             key=lambda b:b[1][i], reverse=reverse))
-        # return the list of sorted contours and bounding boxes
         return (cnts, boundingBoxes)
 
     @staticmethod
     def localize_puzzle(im):
-        # Convert to gray scale
         imgray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-        # Apply adaptive threshoding
         thresh = cv2.adaptiveThreshold(imgray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,57,5)
 
-        # Find all contours
         cnts, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        # Find the contour with the max area
         cnt = max(cnts, key=cv2.contourArea)
         
-        # Find bounding rectangle
         x, y, w, h = cv2.boundingRect(cnt)
 
         # Crop and resize
@@ -108,11 +96,6 @@ class SudokuRecognition(object):
         # To filter out the noises
         cnts = [i for i in cnts if cv2.contourArea(i) > 100]
         
-        # test = np.zeros(im.shape)
-        # cv2.drawContours(test, cnts, -1, (255, 255 ,255), -1)
-        # cv2.imshow('test', test)
-        # cv2.waitKey(0)
-         
         if (len(cnts) != 81):
             raise NotFoundException()
 
@@ -157,7 +140,6 @@ class SudokuRecognition(object):
 
         cnts = [i for i in cnts if cv2.contourArea(i) > 10]
 
-        # If no digit
         if (len(cnts) == 0):
             return 0
 
@@ -177,22 +159,11 @@ class SudokuRecognition(object):
     
     @staticmethod
     def recognize_helper(im, v_iterations, h_iterations):
-        # Step 1
         im, thresh, mask = SudokuRecognition.localize_puzzle(im)
-        
-
-        # Step 2
         thresh = SudokuRecognition.remove_digits(thresh)
-
-
-        # Step 3
         thresh = SudokuRecognition.repair_gridlines(thresh, v_iterations, h_iterations)
-
-        # Step 4
         squares = SudokuRecognition.find_squares(thresh, mask)
-
         sudoku = []
-
         for i in range(9):
             sudoku.append([SudokuRecognition.recognize_digit(im, cnt) for cnt in squares[i]])
 
@@ -215,6 +186,3 @@ class SudokuRecognition(object):
                         continue
         
         return sudoku
-# im = cv2.imread('sudoku_puzzle.jpg')
-# # print("Image is None?", im is None)
-# SudokuRecognition.recognize(im)
