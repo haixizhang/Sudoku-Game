@@ -53,7 +53,7 @@ The system architecture consists of the following components:
 
 - **Functional Processes**: Image capturing, Sudoku recognition, puzzle solving, and user interface management.
 
-  ![System_arch](/pic/System_arch.png)
+  ![System_arch](/img/System_arch.png)
 
 ## Installation
 
