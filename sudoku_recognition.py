@@ -1,3 +1,4 @@
+# Owner: Haixi Zhang & Shuchang Wen
 # sudoku_recognition.py
 
 import torch

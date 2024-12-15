@@ -1,3 +1,4 @@
+# Owner: Haixi Zhang & Shuchang Wen
 # main.py
 
 import os
@@ -13,11 +14,12 @@ from picamera2 import Picamera2
 from libcamera import controls
 import threading
 import logging
+import queue
 import random
 
 from Gui import run_gui
 from Solver import get_solution
-from sudoku_recognition import SudokuRecognition
+from sudoku_recognizaiton import SudokuRecognition
 
 # ----------------------------
 # Configuration Constants
@@ -190,6 +192,7 @@ def preview_loop():
         preview_active = False
 
 def draw_main_menu():
+    logging.info("Drawing main menu.")
     lcd.fill(BLACK)
     title_text = title_font.render("Interactive Sudoku Solver", True, WHITE)
     title_rect = title_text.get_rect(center=(PI_TFT_WIDTH // 2, 40))
@@ -209,6 +212,7 @@ def draw_main_menu():
     logging.info("Main menu drawn.")
 
 def draw_difficulty_menu():
+    logging.info("Drawing difficulty selection menu.")
     lcd.fill(BLACK)
     title_text = title_font.render("Select Difficulty", True, WHITE)
     title_rect = title_text.get_rect(center=(PI_TFT_WIDTH // 2, 20))
@@ -233,12 +237,12 @@ def draw_difficulty_menu():
     logging.info("Difficulty menu drawn.")
 
 def display_error(message):
+    logging.error(message)
     lcd.fill(BLACK)
     error_text = font.render(message, True, RED)
     error_rect = error_text.get_rect(center=(PI_TFT_WIDTH // 2, PI_TFT_HEIGHT // 2))
     lcd.blit(error_text, error_rect)
     pygame.display.update()
-    logging.info(message)
     time.sleep(2)
     # After displaying error, return to the previous mode
     if len(mode_stack) > 1:
@@ -300,17 +304,40 @@ def capture_save_process_image():
             logging.info(puzzle)
             if puzzle.shape == (9, 9):
                 logging.info("Puzzle scanned successfully.")
-                solution = get_solution(puzzle)
+
+                # Use threading and queue to implement solving with timeout
+                result_q = queue.Queue()
+
+                def solve_sudoku(p):
+                    sol = get_solution(p)
+                    result_q.put(sol)
+
+                solver_thread = threading.Thread(target=solve_sudoku, args=(puzzle,))
+                solver_thread.start()
+                solver_thread.join(timeout=10)  # Wait for 10 seconds
+
+                if solver_thread.is_alive():
+                    # Solving timed out, treat as unsolvable
+                    logging.error("Puzzle solving timed out after 10 seconds, treating as unsolvable.")
+                    solution = None
+                else:
+                    # Retrieve the result from the queue
+                    solution = result_q.get()
+
                 if solution is not None:
                     logging.info("Puzzle solved successfully.")
                     logging.info(solution)
-                    run_gui(puzzle, solution)  # Run the GUI
+                    run_gui(puzzle, solution, TIMEOUT=120, editing=False)
                     # After GUI exits, return to main menu
                     mode_stack.pop()  # Remove "CAPTURE_MODE"
                     draw_main_menu()
                 else:
                     logging.error("Puzzle is unsolvable.")
-                    display_error("Puzzle Unsolvable. Try Again.")
+                    # Enter edit mode to allow user to modify the Sudoku
+                    run_gui(puzzle, None, TIMEOUT=300, editing=True)
+                    # After editing and game, return to main menu
+                    mode_stack.pop()  # Remove "CAPTURE_MODE"
+                    draw_main_menu()
             else:
                 logging.error("Invalid puzzle shape.")
                 display_error("Invalid Puzzle. Try Again.")
@@ -325,7 +352,7 @@ def capture_save_process_image():
         preview_active = False
 
 def start_random_puzzle_mode(difficulty):
-    # Based on the difficulty selected, choose the puzzle
+    # Choose the puzzle based on selected difficulty
     if difficulty == 'easy':
         puzzle = np.array(EASY_PUZZLE)
     elif difficulty == 'medium':
@@ -337,7 +364,6 @@ def start_random_puzzle_mode(difficulty):
     if solution is not None:
         run_gui(puzzle, solution)
     else:
-        # This should rarely happen if your puzzles are known solvable
         display_error("Selected puzzle is unsolvable. Try Again.")
     # After solving, return to main menu
     mode_stack.pop()  # Remove "PLAYING_*" mode
@@ -356,12 +382,10 @@ def handle_back_button():
         elif current_mode == "DIFFICULTY_MENU":
             draw_difficulty_menu()
         elif current_mode == "CAPTURE_MODE":
-            # If you have other modes, handle them here
             pass
         else:
             logging.warning(f"Unhandled mode: {current_mode}")
     else:
-        # If only MAIN_MENU is in the stack, exit the program
         logging.info("BAILOUT pressed on MAIN_MENU. Exiting program.")
         global running
         running = False
@@ -399,7 +423,6 @@ def main():
                         if SCAN_BUTTON_RECT.collidepoint(x, y):
                             logging.info("Scan the Puzzle button pressed.")
                             mode_stack.append("CAPTURE_MODE")
-                            draw_main_menu()  # Optional: clear any previous selections
                             capture_save_process_image()
                             start_time = time.time()
                         elif RANDOM_BUTTON_RECT.collidepoint(x, y):
@@ -424,8 +447,6 @@ def main():
                             mode_stack.append("PLAYING_HARD")
                             start_random_puzzle_mode('hard')
                             start_time = time.time()
-
-                    # Add more conditions if you have more modes
 
             time.sleep(0.1)
 

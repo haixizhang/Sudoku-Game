@@ -1,3 +1,4 @@
+# Owner: Haixi Zhang & Shuchang Wen
 # solver.py
 import numpy as np
 
