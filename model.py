@@ -1,3 +1,6 @@
+# Owner: Haixi Zhang & Shuchang Wen
+# model.py file is used to define the CNN model for the MNIST dataset.
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
