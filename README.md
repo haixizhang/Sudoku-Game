@@ -206,6 +206,5 @@ The system architecture consists of the following components:
 1. [Picamera Documentation](https://picamera.readthedocs.io/en/release-1.13/)
 2. [Pigame GitHub Repository](https://github.com/n4archive/pigame)
 3. [Pitft Touchscreen GitHub Repository](https://github.com/n4archive/pitft_touchscreen)
-4. LeCun, Y., Bottou, L., Bengio, Y., & Haffner, P. (1998). *Gradient-based learning applied to document recognition*. Proceedings of the IEEE, 86(11), 2278–2324. DOI
 5. [OpenCV Tutorials](https://docs.opencv.org/4.x/d9/df8/tutorial_root.html)
 6. [GeeksforGeeks: How to Use MNIST Dataset](https://www.geeksforgeeks.org/mnist-dataset/)
