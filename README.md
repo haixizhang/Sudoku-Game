@@ -16,8 +16,6 @@
   - [User Feedback](#user-feedback)
   - [Limitations and Challenges](#limitations-and-challenges)
 - [Future Work](#future-work)
-- [Contributing](#contributing)
-- [License](#license)
 - [Contact](#contact)
 
 ## Introduction
