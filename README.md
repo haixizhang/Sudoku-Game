@@ -1,7 +1,7 @@
 # Interactive Sudoku Solver
-
+  ![intro_pic](/img/intro_pic.jpg)
 ## Table of Contents
-
+img/System_arch.png
 - [Introduction](#introduction)
 - [Features](#features)
 - [Objectives](#objectives)
@@ -125,7 +125,7 @@ The system architecture consists of the following components:
 
    - **Scan Puzzle**: Capture an image of a Sudoku puzzle using the Pi Camera.
    - **Select Puzzle**: Choose a random puzzle from predefined difficulty levels (Easy, Medium, Hard).
-
+  ![preview](/img/preview.jpg)
 3. **Solving the Puzzle**
 
    - After input, the system processes and solves the puzzle.
