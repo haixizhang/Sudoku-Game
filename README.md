@@ -16,14 +16,12 @@ img/System_arch.png
   - [User Feedback](#user-feedback)
   - [Limitations and Challenges](#limitations-and-challenges)
 - [Future Work](#future-work)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
 
 ## Introduction
 
 The **Interactive Sudoku Solver** is a comprehensive tool designed to recognize, solve, and interact with Sudoku puzzles using Raspberry Pi hardware. It allows users to input puzzles manually via a touch interface or capture them using a camera. The system processes the input, identifies the puzzle structure, solves it, and displays the solution interactively. This project integrates image processing, machine learning, software engineering, and hardware interfacing to provide a seamless user experience.
 You can watch the video below to learn more information.
+
 [![viedo](https://img.youtube.com/vi/mBqw01Icnio/0.jpg)](https://www.youtube.com/watch?v=mBqw01Icnio&t=1s)
 
 ## Features
